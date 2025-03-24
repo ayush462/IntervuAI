@@ -12,6 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 
 import { Form } from "@/components/ui/form";
@@ -95,6 +96,21 @@ const AuthForm = ({ type }: { type: FormType }) => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    const email = form.getValues("email");
+    if (!email) {
+      toast.error("Please enter your email first.");
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast.success("Password reset email sent! Check your inbox.");
+    } catch (error: any) {
+      toast.error(`Error: ${error.message}`);
+    }
+  };
+
   const isSignIn = type === "sign-in";
 
   return (
@@ -141,6 +157,15 @@ const AuthForm = ({ type }: { type: FormType }) => {
             <Button className="btn" type="submit">
               {isSignIn ? "Sign In" : "Create an Account"}
             </Button>
+
+            {isSignIn && (
+              <p
+                className="text-sm text-user-primary cursor-pointer text-center"
+                onClick={handleForgotPassword}
+              >
+                Forgot Password?
+              </p>
+            )}
           </form>
         </Form>
 
